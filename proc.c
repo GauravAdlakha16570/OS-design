@@ -535,7 +535,7 @@ procdump(void)
 
 // clone function for thread creation. Body comes from the fork function
 int
-clone(void)
+clone(void *stack, int size)
 {
   int i, pid;
   struct proc *np;
@@ -557,6 +557,7 @@ clone(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  
   np->pgdir = curproc->pgdir; //threads share the same page table
 
   // Clear %eax so that fork returns 0 in the child.
@@ -570,7 +571,11 @@ clone(void)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
    
 // NEED TO FIGURE OUT WHAT TO DO ABOUT STACK CHANGES
-   
+// eip is instruction pointer register, esp is stack pointer register
+// need to set up the threads personal stack and apply it to thread
+  
+  np->tstack = stack; //probably not right maybe something to do with page size?? tstack new addition to proc.h
+  
    
   pid = np->pid;
 
@@ -582,5 +587,3 @@ clone(void)
 
   return pid;
 }
-
-
