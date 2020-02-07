@@ -541,7 +541,7 @@ clone(void* (*fn)(void *), void *stack, void arg)
   struct proc *np;
   struct proc *curproc = myproc();
   
-  uint* ustack[2] = stack + PGSIZE - 8; //like exec.c stack set up
+  uint ustack[2] = (uint)stack + PGSIZE - 8; //like exec.c stack set up
   
 
   // Allocate process.
