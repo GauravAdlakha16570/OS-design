@@ -541,7 +541,7 @@ clone(void* (*fn)(void *), void *stack, int arg)
   struct proc *np;
   struct proc *curproc = myproc();
   
-  uint ustack[2]; //like exec.c stack set up
+  uint* ustack[2] = stack + PGSIZE - 8; //like exec.c stack set up
   
 
   // Allocate process.
@@ -563,6 +563,8 @@ clone(void* (*fn)(void *), void *stack, int arg)
   
   np->pgdir = curproc->pgdir; //threads share the same page table
   np->tstack = (char*)stack;
+  
+  
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -577,10 +579,10 @@ clone(void* (*fn)(void *), void *stack, int arg)
 // eip is instruction pointer register, esp is stack pointer register
 // need to set up the threads personal stack and apply it to thread
   
-  np->tf->eip = ?;
-  np->tf->esp = (uint)stack + PGSIZE -4; //stack pointer register will hold val of base page size - passed in stack size + stack
+  np->tf->eip = (uint)fn;
+  np->tf->esp = (uint)stack + PGSIZE - 8; //stack pointer register will hold val of base page size - passed in stack size + stack
   ustack[0] = 0xffffffff; // fake return pc like exec.c
-  ustack[1] = ?;
+  ustack[1] = (uint)arg;
    
   pid = np->pid;
 
