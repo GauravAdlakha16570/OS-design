@@ -535,7 +535,7 @@ procdump(void)
 
 // clone function for thread creation. Body comes from the fork function
 int
-clone(void* (*fn)(void *), void *stack, int arg)
+clone(void* (*fn)(void *), void *stack, void arg)
 {
   int i, pid;
   struct proc *np;
