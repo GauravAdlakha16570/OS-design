@@ -535,20 +535,17 @@ procdump(void)
 
 // clone function for thread creation. Body comes from the fork function
 int
-clone(void* (*fn)(void *), void *stack, void* arg)
-{
+clone(void* (*fn)(void*), void *stack, void* arg) {
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
   
   uint* newstack = (uint*)((uint)stack + PGSIZE - 8); //like exec.c stack set up
-  
 
   // Allocate process.
   if((np = allocproc()) == 0){
     return -1;
   }
-
   // Copy process state from proc.
   /*if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
@@ -562,7 +559,6 @@ clone(void* (*fn)(void *), void *stack, void* arg)
   *np->tf = *curproc->tf;
   np->pgdir = curproc->pgdir; //threads share the same page table
   np->tstack = (char*)stack;
-  
   
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -582,13 +578,9 @@ clone(void* (*fn)(void *), void *stack, void* arg)
   np->tf->eip = (uint)fn;
   np->tf->esp = (uint)stack + PGSIZE - 8; //stack pointer register will hold val of base page size - passed in stack size + stack
   
-   
   pid = np->pid;
-
   acquire(&ptable.lock);
-
   np->state = RUNNABLE;
-
   release(&ptable.lock);
 
   return pid;
