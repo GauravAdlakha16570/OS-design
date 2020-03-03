@@ -49,7 +49,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  char *tstack;				   // Thread stack THREAD SUPPORT
+  char *tstack;				   // Thread stack THREAD SUPPORT 
+  int isAThread; //flag to determine if the process is a thread
   //int threadFlag;               // Flag to check if thread is a thread 
 };
 

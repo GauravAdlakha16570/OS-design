@@ -13,6 +13,12 @@ sys_fork(void)
   return fork();
 }
 
+int
+sys_join(void)
+{
+  return join();
+}
+
 
 int
 sys_clone(void)

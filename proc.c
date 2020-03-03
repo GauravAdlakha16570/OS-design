@@ -224,6 +224,7 @@ fork(void)
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
+//EDITED FOR THREADING
 void
 exit(void)
 {
@@ -255,9 +256,18 @@ exit(void)
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == curproc){
-      p->parent = initproc;
-      if(p->state == ZOMBIE)
-        wakeup1(initproc);
+      if (p->isAThread == 1){  //if its child is a thread, it needs to be destroyed since the curproc is dead
+        kfree(p->kstack); // frees the memmory
+        p->kstack = 0; //resets the pointer so it can be blank in the proc table
+        p->state = UNUSED; // makes it available to allocate to a new process
+      }
+      else { //set the child process's parent to initproc
+        p->parent = initproc;
+        if(p->state == ZOMBIE){
+          wakeup1(initproc);
+        }
+          
+      }
     }
   }
 
@@ -556,6 +566,7 @@ clone(void* (*fn)(void*), void *stack, void* arg) {
    */
   np->sz = curproc->sz;
   np->parent = curproc;
+  np->isAThread = 1;
   *np->tf = *curproc->tf;
   np->pgdir = curproc->pgdir; //threads share the same page table
   np->tstack = (char*)stack;
@@ -585,3 +596,47 @@ clone(void* (*fn)(void*), void *stack, void* arg) {
 
   return pid;
 }
+
+int
+join(void) {
+
+  struct proc *p;
+  int havethreads, pid;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havethreads = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->isAThread != 1 || p->parent != curproc)
+        continue; //if p is not a thread or if p is not a child of curproc
+      havethreads = 1;
+      if(p->state == ZOMBIE){
+        // Found a finished thread, going to reset the proc without removing the memory allocation
+        pid = p->pid;
+        p->kstack = 0;
+        p->pgdir = 0;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        p->isAThread = 0;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    if(!havethreads || curproc->killed){ //if it finds no kids, or its been killed return -1
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+
+}
+
+
