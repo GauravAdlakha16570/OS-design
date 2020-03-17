@@ -564,6 +564,8 @@ clone(void* (*fn)(void*), void *stack, void* arg) {
     return -1;
   }
    */
+   //threads are a copy of all the schedulable parts of a process
+   //threads also have a peer relationship
   np->sz = curproc->sz;
   np->parent = curproc;
   np->isAThread = 1;
@@ -584,11 +586,10 @@ clone(void* (*fn)(void*), void *stack, void* arg) {
 // NEED TO FIGURE OUT WHAT TO DO ABOUT STACK CHANGES
 // eip is instruction pointer register, esp is stack pointer register
 // need to set up the threads personal stack and apply it to thread
-  newstack[0] = 0xffffffff; // fake return pc like exec.c
+  newstack[0] = 0xffffffff; // fake return pc like exec.c idea for this came from a project manual found online
   newstack[1] = (uint)arg;
-  np->tf->eip = (uint)fn;
-  np->tf->esp = (uint)stack + PGSIZE - 8; //stack pointer register will hold val of base page size - passed in stack size + stack
-  
+  np->tf->eip = (uint)fn; 
+  np->tf->esp = (uint)stack + PGSIZE - 8; //page aligning our threads stack
   pid = np->pid;
   acquire(&ptable.lock);
   np->state = RUNNABLE;
