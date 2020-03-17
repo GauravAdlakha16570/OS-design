@@ -22,3 +22,7 @@
 #define SYS_close  21
 #define SYS_clone  22 // THREAD
 #define SYS_join   23 //THREAD
+#define SYS_semaphore_init 24
+#define SYS_semaphore_wait 25
+#define SYS_semaphore_signal 26
+#define SYS_semaphore_close 27

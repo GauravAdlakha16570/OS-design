@@ -122,6 +122,10 @@ void            wakeup(void*);
 void            yield(void);
 int             clone(void* (*)(void *), void*, void*); //threads
 int             join(void); //threads
+int             semaphore_init(int);
+int             semaphore_wait(int, int);
+int             semaphore_signal(int, int);
+int             semaphore_close(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

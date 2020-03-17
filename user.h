@@ -25,6 +25,10 @@ int sleep(int);
 int uptime(void);
 int clone (void* (*)(void *), void *, void* );
 int join(void);
+int semaphore_init(int);
+int semaphore_wait(int, int);
+int semaphore_signal(int, int);
+int semaphore_close(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

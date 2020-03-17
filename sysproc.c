@@ -19,6 +19,62 @@ sys_join(void)
   return join();
 }
 
+int
+sys_semaphore_init(void)
+{
+  int val;
+
+  if(argint(0, &val) < 0){
+    return -1;
+  }
+
+  return semaphore_init(val);
+}
+
+int
+sys_semaphore_wait(void)
+{
+  int index;
+  int count;
+
+  if(argint(0, &index) < 0){
+    return -1;
+  }
+  if(argint(1, &count) < 0){
+    return -1;
+  }
+
+  return semaphore_wait(index, count);
+}
+
+int
+sys_semaphore_signal(void)
+{
+  int index;
+  int count;
+
+  if(argint(0, &index) < 0){
+    return -1;
+  }
+  if(argint(1, &count) < 0){
+    return -1;
+  }
+
+  return semaphore_signal(index, count);
+}
+
+int
+sys_semaphore_close(void)
+{
+  int index;
+
+  if(argint(0, &index) < 0){
+    return -1;
+  }
+
+  return semaphore_close(index);
+}
+
 
 int
 sys_clone(void)

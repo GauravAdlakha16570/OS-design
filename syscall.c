@@ -105,6 +105,10 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_clone(void); //threads
 extern int sys_join(void); //threads
+extern int sys_semaphore_init(void);
+extern int sys_semaphore_wait(void);
+extern int sys_semaphore_signal(void);
+extern int sys_semaphore_close(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,6 +134,10 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_clone]   sys_clone, //threads
 [SYS_join]    sys_join, //threads
+[SYS_semaphore_init] sys_semaphore_init,
+[SYS_semaphore_wait] sys_semaphore_wait,
+[SYS_semaphore_signal] sys_semaphore_signal,
+[SYS_semaphore_close] sys_semaphore_close,
 };
 
 void

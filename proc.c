@@ -7,10 +7,19 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
+
+struct semaphore{ 
+  int val; //resources available to threads
+  int flag; //flag to check if the semaphore is active or not
+  struct spinlock lock;
+};
+
+struct semaphore semtable[32]; //there are 32 semaphores available for processes to use
 
 static struct proc *initproc;
 
@@ -549,6 +558,11 @@ clone(void* (*fn)(void*), void *stack, void* arg) {
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
+
+  if ((uint)stack % PGSIZE != 0){ //checks if page aligned
+    return -1;
+  }
+  
   
   uint* newstack = (uint*)((uint)stack + PGSIZE - 8); //like exec.c stack set up
 
@@ -615,6 +629,7 @@ join(void) {
       if(p->state == ZOMBIE){
         // Found a finished thread, going to reset the proc without removing the memory allocation
         pid = p->pid;
+        kfree(p->kstack);
         p->kstack = 0;
         p->pgdir = 0;
         p->pid = 0;
@@ -636,6 +651,86 @@ join(void) {
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+
+}
+
+int
+semaphore_init(int val){
+  //search through semtable to find available semaphore
+  //initilize available semaphore
+  //returns index of initialized semaphore
+
+  for(int i = 0; i < 32; i++){
+
+    acquire(&semtable[i].lock);
+
+    if(!semtable[i].flag){
+      semtable[i].flag = 1;
+      semtable[i].val = val;
+      release(&semtable[i].lock);
+      return i;
+    }
+    release(&semtable[i].lock);
+  }
+  return -1; //couldnt find an available semaphore
+}
+
+int
+semaphore_wait(int index, int count){
+  //checks if enough resources available, waits if not
+  //removes count from index when it takes control
+  //returns 0 if successful, returns -1 if semaphore not initialized
+
+  acquire(&semtable[index].lock);
+
+  if(!semtable[index].flag){
+    return -1;
+  }
+
+  while(semtable[index].val < count){
+    sleep(&semtable[index], &semtable[index].lock); //woken up by semaphore_signal
+  }
+
+  semtable[index].val = semtable[index].val - count;
+
+  release(&semtable[index].lock);
+
+  return 0;
+}
+
+int
+semaphore_signal(int index, int count){
+  //frees resources by adding count back to value
+  //then wakes up processes that are waiting to use resources
+  //returns 0 if successful, returns -1 if not initialized
+
+
+  acquire(&semtable[index].lock);
+
+  if(!semtable[index].flag){
+    return -1;
+  }
+
+  semtable[index].val = semtable[index].val + count;
+  wakeup(&semtable[index]);
+
+  release(&semtable[index].lock);
+
+  return 0;
+}
+
+int
+semaphore_close(int index){
+  //resets values for a semaphore so it has to be initialized
+
+  acquire(&semtable[index].lock);
+
+  semtable[index].flag = 0;
+  semtable[index].val = 0;
+
+  release(&semtable[index].lock);
+
+  return 0;
 
 }
 

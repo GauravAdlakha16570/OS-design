@@ -157,6 +157,10 @@ _forktest: forktest.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o ulib.o usys.o
 	$(OBJDUMP) -S _forktest > forktest.asm
 
+_uthread: uthread.o uthread_switch.o
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _uthread uthread.o uthread_switch.o $(ULIB)
+	$(OBJDUMP) -S _uthread >uthread.asm
+
 mkfs: mkfs.c fs.h
 	gcc -Werror -Wall -o mkfs mkfs.c
 
@@ -181,9 +185,15 @@ UPROGS=\
 	_stressfs\
 	_usertests\
 	_wc\
+	_uthread\
 	_zombie\
+	_pwctest\
+	_pwctest2\
+	_clonetests\
+	_ctftest\
 	_myclonetest\
-	_ryantest\
+	_jointest\
+	_uthread\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -254,7 +264,11 @@ EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	myclonetest.c\
-	ryantest.c\
+	jointest.c\
+	ctftest.c\
+	pwctest.c\
+	pwctest2.c\
+	clonetests.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
