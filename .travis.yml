@@ -1,0 +1,9 @@
+nguage: c
+os: linux
+addons:
+  apt_packages:
+  - qemu
+script:
+  - make
+  - (timeout 30 bash -c "echo ' clonetests 2' | make qemu-nox"; exit 0)
+

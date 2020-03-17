@@ -82,5 +82,5 @@ printf(1, "tid = %d\n", tid);
   else {
 	  printf(1, "this is the parent process. My pid is %d and my parent's id is %d.\n", getpid(), tid);
   }*/ 
-  exit();
+  exit(0);
 }
