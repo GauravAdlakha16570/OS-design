@@ -1,0 +1,8 @@
+nguage: c
+os: linux
+addons:
+  apt_packages:
+  - qemu
+script:
+  - make
+  - (timeout 30 bash -c "echo ' ls' | make qemu-nox"; exit 0)
