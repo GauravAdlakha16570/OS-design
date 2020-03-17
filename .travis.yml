@@ -5,5 +5,5 @@ addons:
   - qemu
 script:
   - make
-  - (timeout 30 bash -c "echo ' jointest' | make qemu-nox"; exit 0)  
+  - (timeout 30 bash -c "echo ' pwctest' | make qemu-nox"; exit 0)  
 
