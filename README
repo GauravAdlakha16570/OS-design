@@ -7,6 +7,12 @@ Adding Thread Support to the XV6
 Test builds available on Travis-CI
 https://travis-ci.com/github/GauravAdlakha16570/OS-design/builds
 
+Created kernel level thread support in the xv6 using functions in proc.c called clone and join. Developed a user level threads struct 
+along with helper functions to create a user level threads library; found in uthreads.c. Developed semaphores for the kernel level threads;
+can be found in proc.c. 
+
+All test files in the create branch, appended with test in the name.
+
 
 
 
